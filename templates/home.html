@@ -1,0 +1,70 @@
+{% extends "layout.html" %} {% block title %} Home {% endblock %} {% block
+javascript %}
+<script>
+  function logout() {
+    window.location = "http://localhost:5000/logout";
+  }
+  function vote_function(value) {
+    console.log(value);
+    const request = new XMLHttpRequest();
+    request.open("POST", "/vote");
+    const data = new FormData();
+    request.onload = () => {
+      // Extract JSON data from request
+      const data = JSON.parse(request.responseText);
+      // Update the result div
+      if (data.status === "200") {
+        document.querySelector(
+          "#result"
+        ).innerHTML = `<div class="alert alert-success alert-dismissible">
+            Thank you for voting.
+            <button type="button" class="close" data-dismiss="alert">
+              &times;
+            </button>
+          </div>`;
+        logout();
+      } else {
+        document.querySelector("#result").innerHTML = "There was an error.";
+      }
+    };
+    data.append("value", value);
+    request.send(data);
+    return false;
+  }
+</script>
+{% endblock %} {% block main%}
+<div id="result"></div>
+<table class="table">
+  <thead>
+    <tr style="text-align: left">
+      <th>candidateId</th>
+      <th>CandidateName</th>
+      <th>Vote</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in dic %}
+    <tr style="text-align: left">
+      <td>{{ row }}</td>
+      <td>{{ dic[row][0] }}</td>
+      {% if flag %}
+      <td>{{dic[row][1]}}</td>
+      {% endif %} {% if flag_1%}
+      <td>
+        <button
+          id="{{row}}"
+          name="{{row}}"
+          value="{{row}}"
+          type="button"
+          class="btn btn-primary button"
+          onclick="vote_function(this.value)"
+        >
+          Vote
+        </button>
+      </td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
